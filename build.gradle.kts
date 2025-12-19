@@ -1,30 +1,43 @@
+import org.jetbrains.kotlin.gradle.internal.util.PlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
-    // Use the alias from the catalog [plugins] section
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotest)
+    alias(libs.plugins.google.ksp)
 }
 
 repositories {
     mavenCentral()
 }
 
+
 kotlin {
-    // Target configuration (macos, linux, windows, etc.)
-    macosX64("native")
+    jvmToolchain(21)
+    macosX64()
     linuxX64()
     mingwX64()
 
     sourceSets {
         commonMain.dependencies {
-            // Use type-safe accessors from the [libraries] section
             implementation(libs.clikt)
             implementation(libs.okio)
         }
+        commonTest.dependencies {
+            implementation(libs.kotest.framework)
+            implementation(libs.kotest.assertions)
+        }
+        macosX64Test.dependencies {
+            implementation(libs.kotest.framework)
+            implementation(libs.kotest.assertions)
+        }
+
     }
 
-    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+    targets.withType<KotlinNativeTarget> {
         binaries.executable {
             baseName = "ant-check"
-            entryPoint = "main"
+            entryPoint = "org.zapodot.antpatternvalidator.main"
         }
     }
 }
